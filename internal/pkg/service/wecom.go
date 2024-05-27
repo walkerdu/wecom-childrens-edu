@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -113,10 +112,6 @@ func (svr *WeComServer) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 	log.Printf("[DEBUG]ServeHttp|recv request URL:%s, Method:%s", req.URL, req.Method)
 
 	if req.Method == http.MethodGet {
-		err := errors.New("do not support HTTP GET Method")
-		log.Printf("[WARN]ServeHttp|%s", err)
-		http.Error(wr, err.Error(), http.StatusBadRequest)
-
 		// 解析请求的URI
 		parsedURL := req.URL
 		log.Printf("Path: %s\n", parsedURL.Path)
