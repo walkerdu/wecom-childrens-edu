@@ -156,7 +156,7 @@ func (svr *WeComServer) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 			align-items: center;
 		}
 		#number {
-			font-size: 48px;
+			font-size: 148px;
 			animation: blink 1s infinite;
 			text-align: center;
 		}
@@ -169,7 +169,7 @@ func (svr *WeComServer) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 </head>
 <body>
 	<div id="container">
-		<img src="https://raw.githubusercontent.com/walkerdu/wecom-childrens-edu/master/assets/gold.png" alt="Gold Image">
+		<img src="https://raw.githubusercontent.com/walkerdu/wecom-childrens-edu/master/assets/gold.gif" alt="Gold Image">
 		<div id="number">%d</div>
 	</div>
 </body>
