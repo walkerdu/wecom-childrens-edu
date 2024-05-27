@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/walkerdu/wecom-backend/pkg/chatbot"
@@ -115,6 +116,30 @@ func (svr *WeComServer) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 		err := errors.New("do not support HTTP GET Method")
 		log.Printf("[WARN]ServeHttp|%s", err)
 		http.Error(wr, err.Error(), http.StatusBadRequest)
+
+		// 解析请求的URI
+		parsedURL := req.URL
+		log.Printf("Path: %s\n", parsedURL.Path)
+		log.Printf("RawQuery: %s\n", parsedURL.RawQuery)
+
+		// 解析查询参数
+		queryParams, err := url.ParseQuery(parsedURL.RawQuery)
+		if err != nil {
+			fmt.Printf("Failed to parse query parameters: %v\n", err)
+			return
+		}
+
+		var golds int64
+		if _, exist := queryParams["incr"]; exist {
+			txtHandler, _ := handler.HandlerInst().GetLogicHandler(wecom.MessageTypeText).(*handler.TextMessageHandler)
+			golds, err = txtHandler.IncrGolds("duxingye")
+		}
+
+		if err != nil {
+			fmt.Fprintf(wr, err.Error())
+		} else {
+			fmt.Fprintf(wr, string(golds))
+		}
 
 		return
 	} else if req.Method == http.MethodPost {

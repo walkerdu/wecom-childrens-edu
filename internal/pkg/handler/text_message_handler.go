@@ -79,17 +79,17 @@ func (t *TextMessageHandler) HandleMessage(msg wecom.MessageIF) (wecom.MessageIF
 	return &textMsgRsp, nil
 }
 
-func (t *TextMessageHandler) IncrGolds(key string) error {
+func (t *TextMessageHandler) IncrGolds(key string) (int64, error) {
 	ctx := context.Background()
 	key += "_golds"
 	result, err := HandlerInst().redisClient.Incr(ctx, key).Result()
 	if err != nil {
 		log.Printf("[ERROR][DBSet] redis LPush failed, err=%s", err)
-		return err
+		return 0, err
 	}
 
 	log.Printf("[DEBUG][DBSet] redis Incr success, key:%v, after value:%v", key, result)
-	return nil
+	return result, nil
 }
 
 func (t *TextMessageHandler) SummaryGolds(key string) (string, error) {
