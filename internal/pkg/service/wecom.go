@@ -140,18 +140,25 @@ func (svr *WeComServer) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
+	<title>Number</title>
 	<style>
 		body {
 			display: flex;
+			flex-direction: column;
 			justify-content: center;
 			align-items: center;
 			height: 100vh;
 			margin: 0;
 		}
+		#container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
 		#number {
-			font-size: 148px;
+			font-size: 48px;
 			animation: blink 1s infinite;
+			text-align: center;
 		}
 		@keyframes blink {
 			0%% { color: blue; }
@@ -161,7 +168,10 @@ func (svr *WeComServer) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 	</style>
 </head>
 <body>
-	<div id="number">金币: %d</div>
+	<div id="container">
+		<img src="https://raw.githubusercontent.com/walkerdu/wecom-childrens-edu/master/assets/gold.png" alt="Gold Image">
+		<div id="number">%d</div>
+	</div>
 </body>
 </html>
 `
