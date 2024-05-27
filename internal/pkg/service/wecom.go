@@ -121,6 +121,7 @@ func (svr *WeComServer) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 		queryParams, err := url.ParseQuery(parsedURL.RawQuery)
 		if err != nil {
 			fmt.Printf("Failed to parse query parameters: %v\n", err)
+			http.Error(wr, err.Error(), http.StatusBadRequest)
 			return
 		}
 
