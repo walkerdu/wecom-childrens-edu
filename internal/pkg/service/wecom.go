@@ -136,7 +136,26 @@ func (svr *WeComServer) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			http.Error(wr, err.Error(), http.StatusBadRequest)
 		} else {
-			rsp_html := "<!DOCTYPE html><html><head<title></title></head><body><h1>金币: %d</h1></body></html>"
+			rsp_html := ` 
+<!DOCTYPE html>
+<html>
+<head><title>Integer in HTML</title<style>
+		.blink {
+			animation: blink 1s linear infinite;
+		}
+
+		@keyframes blink {
+			0% { opacity: 1; }
+			50% { opacity: 0; }
+			100% { opacity: 1; }
+		}
+	</style>
+</head>
+<body>
+	<h3>金币: <span class="blink">%s</span></h3>
+</body>
+</html>`
+
 			fmt.Fprintf(wr, rsp_html, golds)
 		}
 
