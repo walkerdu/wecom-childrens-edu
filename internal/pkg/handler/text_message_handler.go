@@ -92,11 +92,24 @@ func (t *TextMessageHandler) IncrGolds(key string) (int64, error) {
 	key += "_golds"
 	result, err := HandlerInst().redisClient.Incr(ctx, key).Result()
 	if err != nil {
-		log.Printf("[ERROR][DBSet] redis LPush failed, err=%s", err)
+		log.Printf("[ERROR][DBSet] redis Incr failed, err=%s", err)
 		return 0, err
 	}
 
 	log.Printf("[DEBUG][DBSet] redis Incr success, key:%v, after value:%v", key, result)
+	return result, nil
+}
+
+func (t *TextMessageHandler) DecrGolds(key string) (int64, error) {
+	ctx := context.Background()
+	key += "_golds"
+	result, err := HandlerInst().redisClient.Decr(ctx, key).Result()
+	if err != nil {
+		log.Printf("[ERROR][DBSet] redis Decr failed, err=%s", err)
+		return 0, err
+	}
+
+	log.Printf("[DEBUG][DBSet] redis Decr success, key:%v, after value:%v", key, result)
 	return result, nil
 }
 
