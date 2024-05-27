@@ -139,22 +139,32 @@ func (svr *WeComServer) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 			rsp_html := ` 
 <!DOCTYPE html>
 <html>
-<head><title>Integer in HTML</title<style>
-		.blink {
-			animation: blink 1s linear infinite;
+<head>
+	<title></title>
+	<style>
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+			margin: 0;
 		}
-
+		#number {
+			font-size: 148px;
+			animation: blink 1s infinite;
+		}
 		@keyframes blink {
-			0% { opacity: 1; }
-			50% { opacity: 0; }
-			100% { opacity: 1; }
+			0%% { color: blue; }
+			50%% { color: red; }
+			100%% { color: blue; }
 		}
 	</style>
 </head>
 <body>
-	<h3>金币: <span class="blink">%s</span></h3>
+	<div id="number">金币: %d</div>
 </body>
-</html>`
+</html>
+`
 
 			fmt.Fprintf(wr, rsp_html, golds)
 		}
