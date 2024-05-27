@@ -56,7 +56,7 @@ func (t *TextMessageHandler) HandleMessage(msg wecom.MessageIF) (wecom.MessageIF
 			golds, err = t.SummaryGolds("duxingyi")
 			chatRsp = string(golds)
 		case "/reset":
-			err = t.ResetGolds("duxingyi")
+			err = t.ResetGolds("duxingye")
 			chatRsp = "杜行烨数据清零"
 		default:
 			err = errors.New("unknow command")
