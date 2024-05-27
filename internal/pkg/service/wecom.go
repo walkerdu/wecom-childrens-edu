@@ -133,9 +133,10 @@ func (svr *WeComServer) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 		}
 
 		if err != nil {
-			fmt.Fprintf(wr, err.Error())
+			http.Error(wr, err.Error(), http.StatusBadRequest)
 		} else {
-			fmt.Fprintf(wr, string(golds))
+			rsp_html := "<!DOCTYPE html><html><head<title></title></head><body><h1>金币: %d</h1></body></html>"
+			fmt.Fprintf(wr, rsp_html, golds)
 		}
 
 		return
