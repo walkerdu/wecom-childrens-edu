@@ -10,9 +10,9 @@ import (
 	"syscall"
 
 	"github.com/walkerdu/wecom-backend/pkg/chatbot"
-	"github.com/walkerdu/wecom-read-it-later/configs"
-	"github.com/walkerdu/wecom-read-it-later/internal/pkg/handler"
-	"github.com/walkerdu/wecom-read-it-later/internal/pkg/service"
+	"github.com/walkerdu/wecom-childrens-edu/configs"
+	"github.com/walkerdu/wecom-childrens-edu/internal/pkg/handler"
+	"github.com/walkerdu/wecom-childrens-edu/internal/pkg/service"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -84,9 +84,6 @@ func main() {
 	// 优雅退出
 	exitc := make(chan struct{})
 	setupGracefulExitHook(exitc, ws)
-
-	// 每天进行review通知
-	go ws.ReviewPubishing()
 
 	log.Printf("[INFO] start Serve()")
 	ws.Serve()

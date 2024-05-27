@@ -8,8 +8,8 @@ import (
 
 	"github.com/walkerdu/wecom-backend/pkg/chatbot"
 	"github.com/walkerdu/wecom-backend/pkg/wecom"
-	"github.com/walkerdu/wecom-read-it-later/configs"
-	"github.com/walkerdu/wecom-read-it-later/internal/pkg/handler"
+	"github.com/walkerdu/wecom-childrens-edu/configs"
+	"github.com/walkerdu/wecom-childrens-edu/internal/pkg/handler"
 )
 
 type WeComServer struct {

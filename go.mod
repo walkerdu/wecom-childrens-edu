@@ -1,4 +1,4 @@
-module github.com/walkerdu/wecom-read-it-later
+module github.com/walkerdu/wecom-childrens-edu
 
 go 1.20
 
