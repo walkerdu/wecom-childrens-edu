@@ -125,9 +125,11 @@ func (svr *WeComServer) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 		}
 
 		var golds int64
+		txtHandler, _ := handler.HandlerInst().GetLogicHandler(wecom.MessageTypeText).(*handler.TextMessageHandler)
 		if _, exist := queryParams["incr"]; exist {
-			txtHandler, _ := handler.HandlerInst().GetLogicHandler(wecom.MessageTypeText).(*handler.TextMessageHandler)
 			golds, err = txtHandler.IncrGolds("duxingye")
+		} else if _, exist := queryParams["duxingye"]; exist {
+			golds, err = txtHandler.SummaryGolds("duxingye")
 		}
 
 		if err != nil {

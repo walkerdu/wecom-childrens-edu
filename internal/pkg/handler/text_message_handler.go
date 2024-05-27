@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"strconv"
 	"strings"
 
 	//"github.com/walkerdu/wecom-backend/pkg/chatbot"
@@ -47,9 +48,16 @@ func (t *TextMessageHandler) HandleMessage(msg wecom.MessageIF) (wecom.MessageIF
 
 		switch content {
 		case "/杜行烨":
-			chatRsp, err = t.SummaryGolds("duxingye")
+			var golds int64
+			golds, err = t.SummaryGolds("duxingye")
+			chatRsp = string(golds)
 		case "/杜行逸":
-			chatRsp, err = t.SummaryGolds("duxingyi")
+			var golds int64
+			golds, err = t.SummaryGolds("duxingyi")
+			chatRsp = string(golds)
+		case "/reset":
+			err = t.ResetGolds("duxingyi")
+			chatRsp = "杜行烨数据清零"
 		default:
 			err = errors.New("unknow command")
 		}
@@ -92,14 +100,36 @@ func (t *TextMessageHandler) IncrGolds(key string) (int64, error) {
 	return result, nil
 }
 
-func (t *TextMessageHandler) SummaryGolds(key string) (string, error) {
+func (t *TextMessageHandler) SummaryGolds(key string) (int64, error) {
 	ctx := context.Background()
+	key += "_golds"
+
 	val, err := HandlerInst().redisClient.Get(ctx, key).Result()
 	if err != nil {
 		log.Printf("[ERROR][SummaryBase] redis Get failed, err=%s", err)
-		return "", err
+		return 0, err
 	}
 
 	log.Printf("[DEBUG][SummaryBase] redis Get success, key:%v, value:%v", key, val)
-	return val, nil
+	golds, err := strconv.Atoi(val)
+	if err != nil {
+		log.Printf("[ERROR][SummaryBase] redis Get golds invalid, err=%s", err)
+		return 0, err
+	}
+
+	return int64(golds), nil
+}
+
+func (t *TextMessageHandler) ResetGolds(key string) error {
+	ctx := context.Background()
+	key += "_golds"
+
+	val, err := HandlerInst().redisClient.Del(ctx, key).Result()
+	if err != nil {
+		log.Printf("[ERROR][SummaryBase] redis Get failed, err=%s", err)
+		return err
+	}
+
+	log.Printf("[DEBUG][SummaryBase] redis Get success, key:%v, value:%v", key, val)
+	return nil
 }
