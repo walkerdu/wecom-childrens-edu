@@ -2,6 +2,9 @@ package service
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
@@ -27,6 +30,7 @@ func NewWeComServer(config *configs.WeComConfig) (*WeComServer, error) {
 
 	mux := http.NewServeMux()
 	mux.Handle("/wecom", svr.wc)
+	mux.HandleFunc("/golds", svr.ServeHTTP)
 
 	svr.httpSvr = &http.Server{
 		Addr:    config.Addr,
@@ -82,8 +86,8 @@ func (svr *WeComServer) ReviewPubishing() {
 		select {
 		case <-timer.C:
 			log.Printf("[INFO] ReviewPubishing()")
-			txtHandler, _ := handler.HandlerInst().GetLogicHandler(wecom.MessageTypeText).(*handler.TextMessageHandler)
-			txtHandler.Review()
+			//txtHandler, _ := handler.HandlerInst().GetLogicHandler(wecom.MessageTypeText).(*handler.TextMessageHandler)
+			//txtHandler.Review()
 		}
 
 		// 重新设置定时器，以实现每天定时执行
@@ -101,4 +105,42 @@ func (svr *WeComServer) Shutdown() error {
 
 	log.Println("[INFO]close httpSvr success")
 	return nil
+}
+
+// ServeHTTP 实现http.Handler接口
+func (svr *WeComServer) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
+	log.Printf("[DEBUG]ServeHttp|recv request URL:%s, Method:%s", req.URL, req.Method)
+
+	if req.Method == http.MethodGet {
+		err := errors.New("do not support HTTP GET Method")
+		log.Printf("[WARN]ServeHttp|%s", err)
+		http.Error(wr, err.Error(), http.StatusBadRequest)
+
+		return
+	} else if req.Method == http.MethodPost {
+		contentType := req.Header.Get("Content-Type")
+
+		if contentType == "application/json" {
+			// 1.http请求体body的content为json格式
+			// 读取HTTP请求体
+			body, err := ioutil.ReadAll(req.Body)
+			if err != nil {
+				err = fmt.Errorf("Failed to read request Body:%s", err)
+				log.Printf("[DEBUG]%s", err)
+
+				http.Error(wr, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			log.Printf("[DEBUG]ServeHTTP|recv request Body:%s", body)
+		} else {
+			err := fmt.Errorf("HTTP POST Method: unkown content-type:%s", contentType)
+			log.Printf("[WARN]ServeHttp|%s", err)
+			http.Error(wr, err.Error(), http.StatusBadRequest)
+
+			return
+		}
+
+		fmt.Fprintf(wr, string(""))
+	}
 }

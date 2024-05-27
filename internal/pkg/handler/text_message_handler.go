@@ -2,10 +2,9 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"log"
-	"strconv"
 	"strings"
-	"time"
 
 	//"github.com/walkerdu/wecom-backend/pkg/chatbot"
 	"github.com/walkerdu/wecom-backend/pkg/wecom"
@@ -42,21 +41,17 @@ func (t *TextMessageHandler) HandleMessage(msg wecom.MessageIF) (wecom.MessageIF
 
 	for {
 		if !strings.HasPrefix(content, "/") {
-			err = t.DBSet(textMsg)
-			if err != nil {
-				break
-			}
-			chatRsp = "success"
+			err = errors.New("unknow command")
 			break
 		}
 
 		switch content {
-		case "/today":
-			chatRsp, err = t.SummaryTodDay(textMsg)
-		case "/month":
-			chatRsp, err = t.SummaryMonth(textMsg)
+		case "/杜行烨":
+			chatRsp, err = t.SummaryGolds("duxingye")
+		case "/杜行逸":
+			chatRsp, err = t.SummaryGolds("duxingyi")
 		default:
-			chatRsp, err = t.SummaryDay(textMsg)
+			err = errors.New("unknow command")
 		}
 
 		// 指令请求，保证无数据也返回消息
@@ -84,121 +79,27 @@ func (t *TextMessageHandler) HandleMessage(msg wecom.MessageIF) (wecom.MessageIF
 	return &textMsgRsp, nil
 }
 
-func (t *TextMessageHandler) DBSet(msg *wecom.TextMessageReq) error {
+func (t *TextMessageHandler) IncrGolds(key string) error {
 	ctx := context.Background()
-	date := time.Now().Format("20060102")
-	key := msg.FromUserName + "_" + date
-	result, err := HandlerInst().redisClient.RPush(ctx, key, msg.Content).Result()
+	key += "_golds"
+	result, err := HandlerInst().redisClient.Incr(ctx, key).Result()
 	if err != nil {
 		log.Printf("[ERROR][DBSet] redis LPush failed, err=%s", err)
 		return err
 	}
 
-	log.Printf("[DEBUG][DBSet] redis LPush success, key:%v, value:%v, result=%v", key, msg.Content, result)
+	log.Printf("[DEBUG][DBSet] redis Incr success, key:%v, after value:%v", key, result)
 	return nil
 }
 
-func (t *TextMessageHandler) SummaryBase(ctx context.Context, key string) (string, error) {
-	vals, err := HandlerInst().redisClient.LRange(ctx, key, 0, -1).Result()
+func (t *TextMessageHandler) SummaryGolds(key string) (string, error) {
+	ctx := context.Background()
+	val, err := HandlerInst().redisClient.Get(ctx, key).Result()
 	if err != nil {
-		log.Printf("[ERROR][SummaryBase] redis LRange failed, err=%s", err)
+		log.Printf("[ERROR][SummaryBase] redis Get failed, err=%s", err)
 		return "", err
 	}
 
-	summary := ""
-	for idx, val := range vals {
-		summary += strconv.Itoa(idx+1) + ". " + val + "\n"
-	}
-
-	log.Printf("[DEBUG][SummaryBase] redis LRange success, key:%v, value:%v", key, vals)
-	return summary, nil
-}
-
-func (t *TextMessageHandler) SummaryBaseBatch(ctx context.Context, keyPrefix string) (string, error) {
-	keys, err := HandlerInst().redisClient.Keys(ctx, keyPrefix+"*").Result()
-	if err != nil {
-		log.Printf("[ERROR][SummaryMonth] redis Keys failed, err=%s", err)
-		return "", err
-	}
-
-	summarys := ""
-	for _, key := range keys {
-		summary, err := t.SummaryBase(ctx, key)
-		if err != nil {
-			return "", err
-		}
-
-		summarys += key + "\n" + summary + "\n"
-	}
-
-	return summarys, nil
-}
-
-func (t *TextMessageHandler) SummaryTodDay(msg *wecom.TextMessageReq) (string, error) {
-	ctx := context.Background()
-	date := time.Now().Format("20060102")
-	key := msg.FromUserName + "_" + date
-
-	return t.SummaryBase(ctx, key)
-}
-
-func (t *TextMessageHandler) SummaryYesterday(msg *wecom.TextMessageReq) (string, error) {
-	ctx := context.Background()
-
-	date := time.Now().AddDate(0, 0, -1).Format("20060102")
-	key := msg.FromUserName + "_" + date
-
-	return t.SummaryBase(ctx, key)
-}
-
-func (t *TextMessageHandler) SummaryDay(msg *wecom.TextMessageReq) (string, error) {
-	ctx := context.Background()
-
-	content := strings.TrimSpace(msg.Content)
-	key, found := strings.CutPrefix(content, "/")
-	if !found {
-		return "", nil
-	}
-
-	return t.SummaryBase(ctx, key)
-}
-
-// TODO 本周的前缀不一定相同
-func (t *TextMessageHandler) SummaryWeek(msg *wecom.TextMessageReq) (string, error) {
-	ctx := context.Background()
-	date := time.Now().Format("200601")
-	keyPrefix := msg.FromUserName + "_" + date
-
-	return t.SummaryBaseBatch(ctx, keyPrefix)
-}
-
-func (t *TextMessageHandler) SummaryMonth(msg *wecom.TextMessageReq) (string, error) {
-	ctx := context.Background()
-	date := time.Now().Format("200601")
-	keyPrefix := msg.FromUserName + "_" + date
-
-	return t.SummaryBaseBatch(ctx, keyPrefix)
-}
-
-func (t *TextMessageHandler) Review() {
-	ctx := context.Background()
-	date := time.Now().Format("20060102")
-	key := "walkerdu" + "_" + date
-
-	summarys, err := t.SummaryBase(ctx, key)
-	if err != nil {
-		HandlerInst().publisher("walkerdu", "today data get failed, err:\n"+err.Error())
-	}
-
-	HandlerInst().publisher("walkerdu", "today:\n"+summarys)
-
-	date = time.Now().Format("200601")
-	keyPrefix := "walkerdu" + "_" + date
-
-	summarys, err = t.SummaryBaseBatch(ctx, keyPrefix)
-	if err != nil {
-		HandlerInst().publisher("walkerdu", "month data get failed, err:\n"+err.Error())
-	}
-
-	HandlerInst().publisher("walkerdu", "month:\n"+summarys)
+	log.Printf("[DEBUG][SummaryBase] redis Get success, key:%v, value:%v", key, val)
+	return val, nil
 }
