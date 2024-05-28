@@ -171,7 +171,7 @@ func (svr *WeComServer) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 </head>
 <body>
 	<div id="container">
-		<img src="https://raw.githubusercontent.com/walkerdu/wecom-childrens-edu/master/assets/gold.gif" alt="Gold Image">
+		<img src="https://cdn.icloudnative.com/gold.gif" alt="Gold Image">
 		<div id="number">%d</div>
 	</div>
 </body>
